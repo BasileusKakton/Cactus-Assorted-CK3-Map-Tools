@@ -16,8 +16,11 @@ namespace mapCreator
 		//For each stack, go one in all direction until color is taken color reached
 
 		static string PATH = "C:\\Users\\Damian\\Desktop\\ck3autotestzone\\zone7\\";
+		static string INPUT = "input\\";
+		static string OUTPUT = "output\\";
+		static string CONFIG = "config\\";
 		static string originalFile = "testmap2";
-		static string outputFile = "output";
+		//static string outputFile = "output";
 		static Bitmap provincesMap;
 		static Dictionary<int, Color> IDdictionary = new Dictionary<int, Color>();
 		static HashSet<Color> colorHashSet = new HashSet<Color>(); // Used to efficiently iterate through used colors
@@ -26,10 +29,12 @@ namespace mapCreator
 		static Dictionary<Color, string> terrainDict = new Dictionary<Color, string>();
 		static Dictionary<string, string> terrainGroups = new Dictionary<string, string>();
 
+		//00_landed_titles
+
 		static void Main(string[] args)
 		{
-			provincesMap = new Bitmap(PATH + originalFile + ".png");
-			provincesMap.Save(PATH + originalFile + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+			provincesMap = new Bitmap(PATH + INPUT + originalFile + ".png");
+			//provincesMap.Save(PATH + "temp\\" + originalFile + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
 			loadColors();
 			assignTerrains();
 			assignLocation();
@@ -37,16 +42,133 @@ namespace mapCreator
 			generateProvinceTerrainFile();
 		}
 
-		static public void generateProvinceTerrainFile()
+		static Dictionary<Color, empireObject> empires = new Dictionary<Color, empireObject>();
+		static Dictionary<Color, kingdomObject> kingdoms = new Dictionary<Color, kingdomObject>();
+		static Dictionary<Color, duchyObject> duchies = new Dictionary<Color, duchyObject>();
+		static Dictionary<Color, countyObject> counties = new Dictionary<Color, countyObject>();
+		private static void readTitleConfig()
 		{
-			using (FileStream fs = File.Create(PATH + "00_province_terrain.txt"))
+			readTitle(0, "titles\\empires.csv");
+			readTitle(1, "titles\\kingdoms.csv");
+			readTitle(2, "titles\\duchies.csv");
+			readTitle(3, "titles\\counties.csv");
+		}
+		//Go over every pixel, read all titles at location. Error if multiple counties 
+		private static void readTitle(int select, string file)
+		{
+			using (var reader = new StreamReader(PATH + CONFIG + file))
+			{
+				while (!reader.EndOfStream)
+				{
+					var line = reader.ReadLine();
+					var values = line.Split(';');
+
+					if (line.Trim().Length == 0)//Prevent crash for next if statement, skip empty line
+					{
+						continue;
+					}
+					if (line.Trim().ElementAt(0) == '#')//Ignore commented out lines, skip
+					{
+						continue;
+					}
+
+					Color tempColor = Color.FromArgb(int.Parse(values[1]), int.Parse(values[2]), int.Parse(values[3]));
+					switch (select) 
+					{
+						case 0:
+							empires.Add(tempColor, new empireObject() { name = values[0], kingdoms = new List<kingdomObject>() } );
+							break;
+						case 1:
+							kingdoms.Add(tempColor, new kingdomObject() { name = values[0], duchies = new List<duchyObject>() });
+							break;
+						case 2:
+							duchies.Add(tempColor, new duchyObject() { name = values[0], counties = new List<countyObject>() });
+							break;
+						case 3:
+							counties.Add(tempColor, new countyObject() { name = values[0] });
+							break;
+					}
+				}
+			}
+		}
+
+		private struct empireObject
+		{
+			public string name;
+			public List<kingdomObject> kingdoms;
+		}
+		private struct kingdomObject
+		{
+			public string name;
+			public List<duchyObject> duchies;
+		}
+		private struct duchyObject
+		{
+			public string name;
+			public List<countyObject> counties;
+		}
+		private struct countyObject
+		{
+			public string name;
+			public List<province> provinces;
+		}
+
+		private static void loadTitles()
+		{
+			Bitmap empireMap = new Bitmap(PATH + INPUT + "empires" + ".png");
+			Bitmap kingdomMap = new Bitmap(PATH + INPUT + "kingdoms" + ".png");
+			Bitmap duchyMap = new Bitmap(PATH + INPUT + "duchies" + ".png");
+			Bitmap countyMap = new Bitmap(PATH + INPUT + "countries" + ".png");
+			List<empireObject> empireList = new List<empireObject>();
+			List<kingdomObject> kingdomList = new List<kingdomObject>();
+			List<duchyObject> duchyList = new List<duchyObject>();
+			List<countyObject> countyList = new List<countyObject>();
+
+			foreach (province p in provinces)
+			{
+				empireObject currentEmpire = empires[empireMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
+				kingdomObject currentKingdom = kingdoms[kingdomMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
+				duchyObject currentDuchy = duchies[duchyMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
+				countyObject currentCounty = counties[countyMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
+
+				//Color tempColor = provincesMap.GetPixel(p.provCoord.X, p.provCoord.Y);
+				if (empireList.Exists(i => i.name == currentEmpire.name)) //Empire exists
+				{
+					if (empireList.Find(i => i.name == currentEmpire.name).kingdoms.Exists(t => t.name == currentKingdom.name)) 
+					{
+
+					}
+					empireList.Find(i => i.name == currentEmpire.name).kingdoms.Add(currentKingdom);
+				}
+				else
+				{
+					currentEmpire.kingdoms.Add(currentKingdom);
+					empireList.Add(currentEmpire);
+				}
+				currentEmpire.kingdoms.Add(currentKingdom);
+				currentKingdom.duchies.Add(currentDuchy);
+				currentDuchy.counties.Add(currentCounty);
+				currentCounty.provinces.Add(p);
+				
+				//empires.Remove
+			}
+		}
+		//Input - files with all titles
+		//Process every title into an array
+		//Goto every province, put province into the county, etc
+		//Assign titles in array their sub-titles
+
+
+		private static void generateProvinceTerrainFile()
+		{
+			using (FileStream fs = File.Create(PATH + OUTPUT + "00_province_terrain.txt"))
 			{
 				AddText(fs, "default=plains\n");
 				foreach (province p in provinces) 
 				{
 					string line = p.provID.ToString() + "=" + p.preferedTerrain + "\n";
 					AddText(fs, line);
-					Console.WriteLine("Province " + p.provID.ToString() + " with terrain " + p.preferedTerrain);
+					//Console.WriteLine("Province " + p.provID.ToString() + " with terrain " + p.preferedTerrain);
 				}
 			}
 		}
@@ -57,9 +179,9 @@ namespace mapCreator
 			fs.Write(info, 0, info.Length);
 		}
 
-		static public void assignTerrains()
+		private static void assignTerrains()
 		{
-			using (var reader = new StreamReader(PATH + "terrain.csv"))
+			using (var reader = new StreamReader(PATH + CONFIG + "terrain.csv"))
 			{
 				while (!reader.EndOfStream)
 				{
@@ -81,7 +203,7 @@ namespace mapCreator
 				}
 			}
 		}
-		static public void spreadProvinces()
+		private static void spreadProvinces()
 		{
 			List<Queue<stackProvinceObject>> stackList = new List<Queue<stackProvinceObject>>();
 			int currentGeneration = 0;
@@ -106,9 +228,9 @@ namespace mapCreator
 					while (stackList[a].Peek().generation == currentGeneration) //
 					{
 						stackProvinceObject currentObject = stackList[a].Dequeue();
-						if (!( terrainDict.ContainsKey(provincesMap.GetPixel(currentObject.prov.provCoord.X, currentObject.prov.provCoord.Y))) && currentObject.generation != 0 )//If not special green, skip 
+						if (!( terrainDict.ContainsKey(provincesMap.GetPixel(currentObject.prov.provCoord.X, currentObject.prov.provCoord.Y))) && currentObject.generation != 0 ) 
 						{
-							//Console.WriteLine("province not green");
+							//Only change terrain values
 						}
 						else
 						{
@@ -249,9 +371,9 @@ namespace mapCreator
 				//provincesMap.Save(PATH + "generationFile" + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp); //Output a file everytime, debug only
 				currentGeneration++;
 			}
-			provincesMap.Save(PATH + "spreadfile" + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+			provincesMap.Save(PATH + OUTPUT + "outputfile" + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
 		}
-		static public void assignLocation()
+		private static void assignLocation()
 		{
 			int width = provincesMap.Width;
 			int height = provincesMap.Height;
@@ -300,9 +422,9 @@ namespace mapCreator
 			}
 		}
 
-		static public void loadColors()
+		private static void loadColors()
 		{
-			using (var reader = new StreamReader(PATH + "definition.csv"))
+			using (var reader = new StreamReader(PATH + INPUT + "definition.csv"))
 			{
 				while (!reader.EndOfStream)
 				{
@@ -331,7 +453,7 @@ namespace mapCreator
 			//    }
 			//}
 		}
-		public struct province
+		private struct province
 		{
 			public Color provColor;
 			public axis2d provCoord;
@@ -345,12 +467,12 @@ namespace mapCreator
 			//public string provHistoryPath;
 		}
 
-		public struct stackProvinceObject {
+		private struct stackProvinceObject {
 			public province prov;
 			public int generation;
 		}
 
-		public struct axis2d
+		private struct axis2d
 		{
 			public axis2d(int x, int y)
 			{

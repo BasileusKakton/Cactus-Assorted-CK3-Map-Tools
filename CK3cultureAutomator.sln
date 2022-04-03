@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CK3AutomaticColorer", "CK3A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Colorer GUI", "Colorer GUI\Colorer GUI.csproj", "{FAB6C465-ECB2-4D56-9C1E-4682468148F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorerAddToExisting", "ColorerAddToExisting\ColorerAddToExisting.csproj", "{B23E5A49-719C-4F26-A53D-6FA1534B52B6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapCreator", "mapCreator\mapCreator.csproj", "{57F5C79E-1A8A-46DF-9DDA-6EADD9BD90B2}"
 EndProject
 Global
@@ -31,10 +29,6 @@ Global
 		{FAB6C465-ECB2-4D56-9C1E-4682468148F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAB6C465-ECB2-4D56-9C1E-4682468148F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAB6C465-ECB2-4D56-9C1E-4682468148F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B23E5A49-719C-4F26-A53D-6FA1534B52B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B23E5A49-719C-4F26-A53D-6FA1534B52B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B23E5A49-719C-4F26-A53D-6FA1534B52B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B23E5A49-719C-4F26-A53D-6FA1534B52B6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57F5C79E-1A8A-46DF-9DDA-6EADD9BD90B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57F5C79E-1A8A-46DF-9DDA-6EADD9BD90B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57F5C79E-1A8A-46DF-9DDA-6EADD9BD90B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
