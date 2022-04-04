@@ -40,6 +40,67 @@ namespace mapCreator
 			assignLocation();
 			spreadProvinces();
 			generateProvinceTerrainFile();
+
+			readTitleConfig();
+			loadTitles();
+			generateLandedTitles(); 
+		}
+
+		private static void generateLandedTitles() 
+		{
+			using (FileStream fs = File.Create(PATH + OUTPUT + "00_landed_titles.txt"))
+			{
+				AddText(fs, "@correct_culture_primary_score = 100\n@better_than_the_alternatives_score = 50\n@always_primary_score = 1000\n\n");
+				foreach (empireObject e in empireList)
+				{
+					List<string> lines = new List<string>();
+					lines.Add("e_" + e.name + " = {\n");
+					lines.Add("\tcolor = { " + "255 255 255" + " }\n"); //Format this
+					lines.Add("\tcolor2 = { " + "255 255 255" + " }\n\n");
+					lines.Add("\tcapital = " + "c_" + e.kingdoms[0].duchies[0].counties[0].name + "\n\n");
+
+					foreach (kingdomObject k in e.kingdoms) 
+					{
+						lines.Add("\tk_" + k.name + " = {\n");
+						lines.Add("\t\tcolor = { " + "255 255 255" + " }\n"); //Format this
+						lines.Add("\t\tcolor2 = { " + "255 255 255" + " }\n\n");
+						lines.Add("\t\tcapital = " + "c_" + k.duchies[0].counties[0].name + "\n\n");
+
+						foreach (duchyObject d in k.duchies) 
+						{
+							lines.Add("\t\td_" + d.name + " = {\n");
+							lines.Add("\t\t\tcolor = { " + "255 255 255" + " }\n"); //Format this
+							lines.Add("\t\t\tcolor2 = { " + "255 255 255" + " }\n\n");
+							lines.Add("\t\t\tcapital = " + "c_" + d.counties[0].name + "\n\n");
+
+							foreach (countyObject c in d.counties) 
+							{
+								lines.Add("\t\t\tc_" + c.name + " = {\n");
+								lines.Add("\t\t\t\tcolor = { " + "255 255 255" + " }\n"); //Format this
+								lines.Add("\t\t\t\tcolor2 = { " + "255 255 255" + " }\n\n");
+
+								foreach (province p in c.provinces) 
+								{
+									lines.Add("\t\t\t\tb_" + p.provID + " = {\n");
+									lines.Add("\t\t\t\t\tprovince = " + p.provID + "\n");
+									lines.Add("\t\t\t\t\tcolor = { " + "255 255 255" + " }\n"); //Format this
+									lines.Add("\t\t\t\t\tcolor2 = { " + "255 255 255" + " }\n\n");
+
+									lines.Add("\t\t\t\t}\n");
+								}
+								lines.Add("\t\t\t}\n");
+							}
+							lines.Add("\t\t}\n");
+						}
+						lines.Add("\t}\n");
+					}
+					lines.Add("}\n");
+					foreach (string s in lines) {
+						AddText(fs, s);
+					}
+					//Console.WriteLine("Province " + p.provID.ToString() + " with terrain " + p.preferedTerrain);
+				}
+			}
 		}
 
 		static Dictionary<Color, empireObject> empires = new Dictionary<Color, empireObject>();
@@ -85,7 +146,7 @@ namespace mapCreator
 							duchies.Add(tempColor, new duchyObject() { name = values[0], counties = new List<countyObject>() });
 							break;
 						case 3:
-							counties.Add(tempColor, new countyObject() { name = values[0] });
+							counties.Add(tempColor, new countyObject() { name = values[0], provinces = new List<province>() });
 							break;
 					}
 				}
@@ -113,43 +174,76 @@ namespace mapCreator
 			public List<province> provinces;
 		}
 
+		static List<empireObject> empireList = new List<empireObject>();
+
 		private static void loadTitles()
 		{
 			Bitmap empireMap = new Bitmap(PATH + INPUT + "empires" + ".png");
 			Bitmap kingdomMap = new Bitmap(PATH + INPUT + "kingdoms" + ".png");
 			Bitmap duchyMap = new Bitmap(PATH + INPUT + "duchies" + ".png");
-			Bitmap countyMap = new Bitmap(PATH + INPUT + "countries" + ".png");
-			List<empireObject> empireList = new List<empireObject>();
-			List<kingdomObject> kingdomList = new List<kingdomObject>();
-			List<duchyObject> duchyList = new List<duchyObject>();
-			List<countyObject> countyList = new List<countyObject>();
+			Bitmap countyMap = new Bitmap(PATH + INPUT + "counties" + ".png");
+			
+			//HashSet<kingdomObject> kingdomList = new List<kingdomObject>();
+			//HashSet<duchyObject> duchyList = new List<duchyObject>();
+			//HashSet<countyObject> countyList = new List<countyObject>();
 
 			foreach (province p in provinces)
 			{
+				Console.WriteLine("Province " + p.provID + " - color " + p.provColor.ToString() + " - coord (" + p.provCoord.X + "/" + p.provCoord.Y + ")");
 				empireObject currentEmpire = empires[empireMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
 				kingdomObject currentKingdom = kingdoms[kingdomMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
 				duchyObject currentDuchy = duchies[duchyMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
 				countyObject currentCounty = counties[countyMap.GetPixel(p.provCoord.X, p.provCoord.Y)];
 
-				//Color tempColor = provincesMap.GetPixel(p.provCoord.X, p.provCoord.Y);
-				if (empireList.Exists(i => i.name == currentEmpire.name)) //Empire exists
-				{
-					if (empireList.Find(i => i.name == currentEmpire.name).kingdoms.Exists(t => t.name == currentKingdom.name)) 
-					{
+				int empireIndex;
+				int kingdomIndex;
+				int duchyIndex;
+				int countyIndex;
 
-					}
-					empireList.Find(i => i.name == currentEmpire.name).kingdoms.Add(currentKingdom);
+				//Color tempColor = provincesMap.GetPixel(p.provCoord.X, p.provCoord.Y);
+
+				//Create empire if doesn't exist
+				//Choose empire, create kingdom if doesn't exist
+				//Choose kingdom, create duchy if doesn't exist
+
+				if (!empireList.Exists(i => i.name == currentEmpire.name)) //Empire doesn't exist
+				{
+					//currentEmpire.kingdoms.Add(currentKingdom);
+					empireList.Add(currentEmpire);
+					//empireList.Find(i => i.name == currentEmpire.name).kingdoms.Add(currentKingdom);
 				}
 				else
 				{
-					currentEmpire.kingdoms.Add(currentKingdom);
-					empireList.Add(currentEmpire);
+					//empireList.Find(i => i.name == currentEmpire.name).kingdoms.Add();
+					//currentEmpire.kingdoms.Add(currentKingdom);
+					//empireList.Add(currentEmpire);
 				}
-				currentEmpire.kingdoms.Add(currentKingdom);
-				currentKingdom.duchies.Add(currentDuchy);
-				currentDuchy.counties.Add(currentCounty);
-				currentCounty.provinces.Add(p);
-				
+				empireIndex = empireList.FindIndex(i => i.name == currentEmpire.name);
+
+				//Kingdom
+				if (!empireList[empireIndex].kingdoms.Exists(i => i.name == currentKingdom.name))
+				{
+					empireList[empireIndex].kingdoms.Add(currentKingdom);
+				}
+				kingdomIndex = empireList[empireIndex].kingdoms.FindIndex(i => i.name == currentKingdom.name);
+
+				//Duchy
+				if (!empireList[empireIndex].kingdoms[kingdomIndex].duchies.Exists(i => i.name == currentDuchy.name))
+				{
+					empireList[empireIndex].kingdoms[kingdomIndex].duchies.Add(currentDuchy);
+				}
+				duchyIndex = empireList[empireIndex].kingdoms[kingdomIndex].duchies.FindIndex(i => i.name == currentDuchy.name);
+
+				//County
+				if (!empireList[empireIndex].kingdoms[kingdomIndex].duchies[duchyIndex].counties.Exists(i => i.name == currentCounty.name))
+				{
+					empireList[empireIndex].kingdoms[kingdomIndex].duchies[duchyIndex].counties.Add(currentCounty);
+				}
+				countyIndex = empireList[empireIndex].kingdoms[kingdomIndex].duchies[duchyIndex].counties.FindIndex(i => i.name == currentCounty.name);
+
+				//Province
+				empireList[empireIndex].kingdoms[kingdomIndex].duchies[duchyIndex].counties[countyIndex].provinces.Add(p);
+				//countyIndex = empireList[empireIndex].kingdoms[kingdomIndex].duchies[duchyIndex].counties.FindIndex(i => i.name == currentCounty.name);
 				//empires.Remove
 			}
 		}
