@@ -13,6 +13,11 @@ namespace CK3MapCreator
         private List<ProvinceCK3> provinces;
         private String cultures;
 
+        private GameState()
+        {
+
+        }
+
         public static GameState GetGameState()
         {
             if (instance == null)
@@ -25,3 +30,4 @@ namespace CK3MapCreator
 
     }
 }
+//damian is cute:)

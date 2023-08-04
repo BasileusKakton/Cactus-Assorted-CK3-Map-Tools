@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace CK3MapCreator
 {
+    //Needs initial map file, definition.csv, terrain.csv, 00_province_terrain, black heightmap
     internal class MapFromScratch
     {
         Dictionary<int, Color> IDtoColor = new Dictionary<int, Color>();
@@ -17,7 +18,7 @@ namespace CK3MapCreator
         FileLoader file = FileLoader.getFileLoader();
         List<ProvinceCK3> provinces = new List<ProvinceCK3>(); 
 
-        private void doThings()
+        public void doThings()
         {
             //provincesMap = new Bitmap(PATH + INPUT + originalFile + ".png");
             provincesMap = new Bitmap(file.getFilePath("mapv1.png"));

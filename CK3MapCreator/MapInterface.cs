@@ -8,8 +8,8 @@ namespace CK3MapCreator
 {
     internal interface MapInterface
     {
-        public List<ProvinceCK3> getProvinces();
-        public Boolean loadProvincesExisting();
-        public loadProvinces();
+        List<ProvinceCK3> getProvinces();
+        Boolean loadProvincesExisting();
+        Boolean loadProvinces();
     }
 }

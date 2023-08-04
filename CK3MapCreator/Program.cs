@@ -16,8 +16,8 @@ namespace CK3MapCreator
             //We will assume they are all at predefined locations
             mapCreator.setBasePath("C:\\Users\\Damian and Kerstin\\Desktop\\CKModding\\mapMaker");
 
-            //Step 2: Load provinces
-            mapCreator.Provinces();
+            //Step 2: Generate provinces
+            mapCreator.generateProvinces();
         }
     }
 }

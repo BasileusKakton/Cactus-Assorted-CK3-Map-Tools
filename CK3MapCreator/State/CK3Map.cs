@@ -9,7 +9,7 @@ namespace CK3MapCreator
     internal class CK3Map : MapInterface
     {
         List<ProvinceCK3> provinces = new List<ProvinceCK3>();
-        List<ProvinceCK3> getProvinces() 
+        public List<ProvinceCK3> getProvinces() 
         {
             Console.WriteLine("No");
             return provinces;

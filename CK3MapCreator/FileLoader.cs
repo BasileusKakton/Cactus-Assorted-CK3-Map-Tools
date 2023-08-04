@@ -70,5 +70,10 @@ namespace CK3MapCreator
             }
             return fileLoader.basePath;
         }
+
+        public void useDefaultPath()
+        {
+            //Initialize all the default file paths
+        }
     }
 }
