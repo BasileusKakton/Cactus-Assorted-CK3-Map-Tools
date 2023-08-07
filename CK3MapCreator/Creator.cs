@@ -28,7 +28,7 @@ namespace CK3MapCreator
             Console.WriteLine("Not done");
         }
 
-        public void generateProvinces()
+        public void generateProvincesFromScratch()
         {
             MapFromScratch generator = new MapFromScratch();
             generator.doThings();

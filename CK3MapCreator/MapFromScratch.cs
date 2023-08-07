@@ -303,7 +303,7 @@ namespace CK3MapCreator
                                     {
                                         if (terrainGroups[terrain] == terrainGroups[currentObject.prov.terrain])
                                         {
-                                            stackList[a].Enqueue(new stackProvinceObject() { prov = new ProvinceCK3() { color = currentObject.prov.color, provCoord = new axis2d(currentObject.prov.provCoord.X + 2, currentObject.prov.provCoord.Y), ID = currentObject.prov.ID, terrain = currentObject.prov.terrain }, generation = currentObject.generation + 1 });
+                                            stackList[a].Enqueue(new stackProvinceObject() { prov = new ProvinceCK3() { color = currentObject.prov.color, x = currentObject.prov.x + 2, y = currentObject.prov.y, ID = currentObject.prov.ID, terrain = currentObject.prov.terrain }, generation = currentObject.generation + 1 });
                                         }
                                     }
                                 }
@@ -312,7 +312,7 @@ namespace CK3MapCreator
                             {
                                 if (rand.Next(2) == 1)
                                 {
-                                    stackList[a].Enqueue(new stackProvinceObject() { prov = new ProvinceCK3() { color = currentObject.prov.color, provCoord = new axis2d(currentObject.prov.provCoord.X + 1, currentObject.prov.provCoord.Y + 1), ID = currentObject.prov.ID, terrain = currentObject.prov.terrain }, generation = currentObject.generation + 1 });
+                                    stackList[a].Enqueue(new stackProvinceObject() { prov = new ProvinceCK3() { color = currentObject.prov.color, x = currentObject.prov.x + 1, y = currentObject.prov.y + 1, ID = currentObject.prov.ID, terrain = currentObject.prov.terrain }, generation = currentObject.generation + 1 });
                                 }
                             }
                         }

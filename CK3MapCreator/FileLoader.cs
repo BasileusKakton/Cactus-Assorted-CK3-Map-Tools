@@ -43,13 +43,14 @@ namespace CK3MapCreator
             }
             String outPath;
             fileLoader.files.TryGetValue(key, out outPath);
+            outPath = basePath + outPath;
             return outPath;
         }
 
         //Writes out all paths in the dictionary to a file
         public string exportPaths()
         {
-            return "Not Done";
+			return "Not Done";
         }
 
         //Reads all paths in a file and loads them in a dictionary
@@ -74,6 +75,7 @@ namespace CK3MapCreator
         public void useDefaultPath()
         {
             //Initialize all the default file paths
+
         }
     }
 }
