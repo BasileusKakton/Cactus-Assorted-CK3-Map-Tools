@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logging\LogFile.cs" />
     <Compile Include="State\CK3Map.cs" />
     <Compile Include="Creator.cs" />
     <Compile Include="State\CultureCK3.cs" />

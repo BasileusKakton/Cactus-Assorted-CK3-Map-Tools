@@ -1,5 +1,5 @@
 ﻿using CK3MapCreator.Logging;
-using System;
+//using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -16,36 +16,79 @@ namespace CK3MapCreator
         HashSet<Color> KnownColors = new HashSet<Color>(); // Used to efficiently iterate through used colors
         Logger logger = Logger.getLogger();
         FileLoader file = FileLoader.getFileLoader();
-        List<ProvinceCK3> provinces = new List<ProvinceCK3>(); 
+        List<ProvinceCK3> provinces = new List<ProvinceCK3>();
+        Bitmap provincesMap;
+        int provinceIDCounter = 1;
 
-        public void doThings()
+        public List<ProvinceCK3> generate()
         {
+            if (checkFiles() == false)
+            {
+                logger.Log("Errors must be fixed before you can generate a map");
+                return null;
+            }
             //provincesMap = new Bitmap(PATH + INPUT + originalFile + ".png");
-            provincesMap = new Bitmap(file.getFilePath("mapv1.png"));
+            provincesMap = new Bitmap(file.getFilePath("input initial map"));
             //provincesMap.Save(PATH + "temp\\" + originalFile + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+
+            logger.Log("Loading Colors...");
             loadColors(); //Load colors from definitions.csv for use in assigning to provinces
-            logger.Log("Colors loaded");
 
+            logger.Log("Loading Terrains...");
             loadTerrains(); //Load terrain csv file for use in assigning terrains
-            logger.Log("Terrains loaded");
 
+            logger.Log("Processing Terrain Data...");
             assignTerrain(); //Process terrain data
-            logger.Log("Terrains processed");
 
+            logger.Log("Assigning Provinces...");
             assignProvinces(); //Create provinces and export province map
-            logger.Log("Provinces assigned");
 
+            logger.Log("Exporting Terrains to File...");
             generateProvinceTerrainFile(); //Export terrain values to file
-            logger.Log("Terrains exported");
 
+            logger.Log("Generating Heightmap");
             generateHeightmap();
-            logger.Log("Heightmap generated");
+            
+            provincesMap.Dispose();
+
+            return provinces;
+        }
+
+        private bool checkFiles()
+        {
+            int errors = 0;
+            if (!File.Exists(file.getFilePath("input definition.csv")))
+            {
+                errors += 1;
+                logger.Log("Missing definition.csv in input directory");
+            }
+
+            if (!File.Exists(file.getFilePath("input terrain.csv")))
+            {
+                errors += 1;
+                logger.Log("Missing terrain.csv in input directory");
+            }
+
+            if (!File.Exists(file.getFilePath("input initial map")))
+            {
+                errors += 1;
+                logger.Log("Missing initial map image in input directory");
+            }
+
+            if (errors > 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         //Reads through the definition file and assosiates province ID's to their colors
         private void loadColors()
         {
-            using (var reader = new StreamReader(file.getFilePath("definition.csv")))
+            using (var reader = new StreamReader(file.getFilePath("input definition.csv")))
             {
                 while (!reader.EndOfStream)
                 {
@@ -79,7 +122,7 @@ namespace CK3MapCreator
         //Reads through the terrain config file and assosiates terrain colors to its name, and name to its group
         private void loadTerrains()
         {
-            using (var reader = new StreamReader(file.getFilePath("terrain.csv")))
+            using (var reader = new StreamReader(file.getFilePath("input terrain.csv")))
             {
                 while (!reader.EndOfStream)
                 {
@@ -102,9 +145,6 @@ namespace CK3MapCreator
             }
         }
         //Keep an internal reference to all provinces of this culture
-
-        Bitmap provincesMap;
-        int provinceIDCounter = 1;
 
         // Look through the whole province map, if the color of this location is red(should be one pixel) then get the province's color from the ID to color list,
         // Set the color to the province color, try changing up and down and left colors?, Add newly created provinces to list
@@ -216,7 +256,7 @@ namespace CK3MapCreator
                                 overY = true;
                             }
 
-                            var rand = new Random();
+                            var rand = new System.Random();
                             string terrain;
                             if (underX && underY) // top left
                             {
@@ -325,11 +365,15 @@ namespace CK3MapCreator
                         }
                     }
                 }
-                Console.WriteLine("Generation " + currentGeneration + " complete");
+                if (currentGeneration % 25 == 0)
+                {
+                    Logger.getLogger().Log("Generation " + currentGeneration + " complete");
+                }
+
                 //provincesMap.Save(PATH + "generationFile" + ".bmp", System.Drawing.Imaging.ImageFormat.Bmp); //Output a file everytime, debug only
                 currentGeneration++;
             }
-            provincesMap.Save(file.getFilePath("outputfile.bmp"), System.Drawing.Imaging.ImageFormat.Bmp);
+            provincesMap.Save(file.getFilePath("input post province map"), System.Drawing.Imaging.ImageFormat.Bmp);
         }
 
         private struct stackProvinceObject
@@ -340,14 +384,13 @@ namespace CK3MapCreator
 
         private void generateProvinceTerrainFile()
         {
-            using (FileStream fs = File.Create(file.getFilePath("00_province_terrain.txt")))
+            using (FileStream fs = File.Create(file.getFilePath("input 00_province_terrain.txt")))
             {
                 AddText(fs, "default=plains\n");
                 foreach (ProvinceCK3 p in provinces)
                 {
                     string line = p.ID.ToString() + "=" + p.terrain + "\n";
                     AddText(fs, line);
-                    //Console.WriteLine("Province " + p.ID.ToString() + " with terrain " + p.terrain);
                 }
             }
         }
@@ -360,24 +403,29 @@ namespace CK3MapCreator
 
         private void generateHeightmap()
         {
-            Bitmap heightMap = new Bitmap(file.getFilePath("heightmapBlank.png")); //Non-empty heightmap
-            Bitmap terrainMap = new Bitmap(file.getFilePath("testmap2.png")); //Non-empty heightmap 
+            Bitmap heightMap = new Bitmap(file.getFilePath("input initial map"));
+
+            //Bitmap terrainMap = new Bitmap(file.getFilePath("input initial map")); //Non-empty heightmap 
                                                                               //Console.WriteLine(heightMap.GetPixel(0,0).ToString());
                                                                               //heightMap.SetResolution(terrainMap.Width, terrainMap.Height);
-            for (int x = 0; x < terrainMap.Width; x = x + 1)
+            for (int x = 0; x < heightMap.Width; x = x + 1)
             {
-                for (int y = 0; y < terrainMap.Height; y = y + 1)
+                for (int y = 0; y < heightMap.Height; y = y + 1)
                 {
-                    if (terrainDict.ContainsKey(terrainMap.GetPixel(x, y)))
+                    if (terrainDict.ContainsKey(heightMap.GetPixel(x, y)))
                     {
                         heightMap.SetPixel(x, y, Color.FromArgb(255, 20, 20, 20));
                     }
+                    else
+                    {
+                        heightMap.SetPixel(x, y, Color.FromArgb(255, 0, 0, 0));
+                    }
                 }
             }
-            heightMap.Save(file.getFilePath("heightmap.png"), System.Drawing.Imaging.ImageFormat.Png);
+            heightMap.Save(file.getFilePath("input post heightmap"), System.Drawing.Imaging.ImageFormat.Png);
 
             heightMap.Dispose();
-            terrainMap.Dispose();
+            //terrainMap.Dispose();
         }
     }
 }

@@ -31,7 +31,7 @@ namespace CK3MapCreator
         public void generateProvincesFromScratch()
         {
             MapFromScratch generator = new MapFromScratch();
-            generator.doThings();
+            state.updateProvinces(generator.generate());
         }
 
         public void setBasePath(String path)
@@ -44,6 +44,21 @@ namespace CK3MapCreator
         {
             FileLoader fileLoader = FileLoader.getFileLoader();
             fileLoader.useDefaultPath();
+        }
+
+        public void export()
+        {
+            state.exportToJson();
+        }
+        public void import()
+        {
+            //Console.WriteLine(state.importFromJson().provinces.Count);
+            state.importFromJson();
+        }
+
+        public void provinces()
+        {
+            state.printState();
         }
     }
 }

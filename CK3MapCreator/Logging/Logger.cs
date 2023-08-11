@@ -26,15 +26,15 @@ namespace CK3MapCreator.Logging
 
         public void setStrategy(string userStrat)
         {
-            if (userStrat.Equals("OneFile"))
+            if (userStrat.Equals("file"))
+            {
+                logger.stratergy = new LogFile();
+            }
+            /*else if (userStrat.Equals("ManyFiles"))
             {
                 logger.stratergy = new LogConsole();
-            }
-            else if (userStrat.Equals("ManyFiles"))
-            {
-                logger.stratergy = new LogConsole();
-            }
-            else if (userStrat.Equals("Console"))
+            }*/
+            else if (userStrat.Equals("console"))
             {
                 logger.stratergy = new LogConsole();
             }

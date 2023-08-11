@@ -13,7 +13,7 @@ namespace CK3MapCreator.Logging
             Console.WriteLine(output);
         }
 
-        public void execute(String output, String group)
+        public void execute(String group, String output)
         {
             Console.WriteLine(group + " | " + output);
         }

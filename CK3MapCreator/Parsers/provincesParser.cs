@@ -19,8 +19,8 @@ namespace CK3MapCreator.Parsers
             HashSet<Color> usedColors = new HashSet<Color>(); //
             List<ProvinceCK3> provinces = new List<ProvinceCK3>();
 
-            Bitmap provincesMap = new Bitmap(fileLoader.getBasePath() + "provinces.png");
-            provincesMap.Save(fileLoader.getBasePath() + "provinces.bmp", System.Drawing.Imaging.ImageFormat.Bmp);
+            Bitmap provincesMap = new Bitmap(fileLoader.getFilePath("provinces.png"));
+            provincesMap.Save(fileLoader.getFilePath("provinces.bmp"), System.Drawing.Imaging.ImageFormat.Bmp);
 
             for (int x = 0; x < provincesMap.Width; x = x + 3)
             {
@@ -28,7 +28,7 @@ namespace CK3MapCreator.Parsers
                 {
                     Color color = provincesMap.GetPixel(x, y);
 
-                    if (usedColors.Add(color))//Return false if color already present, hashset considerably faster
+                    if (usedColors.Add(color))//Return false if color already present
                     {
                         provinces.Add(new ProvinceCK3(color, x, y));
                     }
@@ -60,7 +60,7 @@ namespace CK3MapCreator.Parsers
         {
             List<ProvinceCK3> provinces = new List<ProvinceCK3>();
 
-            using (var reader = new StreamReader(fileLoader.getBasePath() + "provinces.csv"))
+            using (var reader = new StreamReader(fileLoader.getFilePath("provinces.csv")))
             {
                 while (!reader.EndOfStream)
                 {
@@ -77,8 +77,8 @@ namespace CK3MapCreator.Parsers
                         tempProv.name = values[4];
                         tempProv.x = int.Parse(values[5]);
                         tempProv.y = int.Parse(values[6]);
-                        tempProv.Culture = values[7];
-                        tempProv.Religion = values[8];
+                        tempProv.culture = values[7];
+                        tempProv.religion = values[8];
                         tempProv.duchy = values[9];
                         tempProv.kingdom = values[10];
                         tempProv.empire = values[11];
@@ -105,7 +105,7 @@ namespace CK3MapCreator.Parsers
         //
         public void writeProvincesToFile(List<ProvinceCK3> provincesOut)
         {
-            using (FileStream fs = File.Create(fileLoader.getBasePath() + OUTPUT + "00_landed_titles.txt"))
+            using (FileStream fs = File.Create(fileLoader.getFilePath("00_landed_titles.txt")))
             {
                 byte[] jsonbytes = JsonSerializer.SerializeToUtf8Bytes(this);
                 fs.Write(jsonbytes, 0, jsonbytes.Length);

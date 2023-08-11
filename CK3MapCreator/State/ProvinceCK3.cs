@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,22 +11,19 @@ namespace CK3MapCreator
 {
     internal class ProvinceCK3
     {
-        public String culture;
-        public String religion; //Replace with class
-        public String name;
-        public String duchy;
-        public String kingdom;
-        public String empire;
+        public String culture { get; set; }
+        public String religion { get; set; } //Replace with class
+        public String name { get; set; }
+        public String duchy { get; set; }
+        public String kingdom { get; set; }
+        public String empire { get; set; }
         //public String holdingType;
-        public Color color;
-        public int ID; //Definition
-        public int x;
-        public int y;
-        public String terrain;
-        public ProvinceCK3()
-        {
-
-        }
+        public Color color { get; set; }
+        public int ID { get; set; } //Definition
+        public int x { get; set; }
+        public int y { get; set; }
+        public String terrain { get; set; }
+        public ProvinceCK3(){}
         public ProvinceCK3(Color color, int x, int y)
         {
             this.color = color;
