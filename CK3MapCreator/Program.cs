@@ -13,14 +13,9 @@ namespace CK3MapCreator
 
         static void Main(string[] args)
         {
-
             mapCreator = new Creator(false);
-            //Step 1: Ask the User for files types
-            //We will assume they are all at predefined locations
             mapCreator.setBasePath("C:\\Users\\Damian and Kerstin\\Desktop\\MapCreator\\Cactus-Assorted-CK3-Map-Tools\\Test\\");
             mapCreator.useBaseInternalPath();
-
-            //Step 2: Generate provinces
             //mapCreator.generateProvincesFromScratch();
 
             while (processInput()); 

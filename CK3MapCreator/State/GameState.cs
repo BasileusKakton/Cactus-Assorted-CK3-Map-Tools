@@ -80,7 +80,6 @@ namespace CK3MapCreator
 
         public void printState()
         {
-            
             if(instance == null)
             {
                 Logger.getLogger().Log("There is no data loaded right now");
